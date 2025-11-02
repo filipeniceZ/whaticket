@@ -21,7 +21,7 @@ export const initIO = (httpServer: Server): SocketIO => {
 
   io.on("connection", async socket => {
     logger.info("Client Connected");
-    const userCookie = socket.handshake.headers['authorization'] as string;
+    const userCookie = socket.handshake.query['token'] as string;
     const solvingUser =  await fetchUserData(userCookie);
     if (!solvingUser) {
       logger.info("onConnect: User not found in cookie");
