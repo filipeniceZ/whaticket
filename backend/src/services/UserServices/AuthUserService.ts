@@ -8,6 +8,7 @@ import { SerializeUser } from "../../helpers/SerializeUser";
 import Queue from "../../models/Queue";
 import Company from "../../models/Company";
 import Setting from "../../models/Setting";
+import { encrypt } from "../../authCrypt";
 
 interface SerializedUser {
   id: number;
@@ -24,9 +25,8 @@ interface Request {
 }
 
 interface Response {
-  serializedUser: SerializedUser;
+  serializedUser: User;
   token: string;
-  refreshToken: string;
 }
 
 const AuthUserService = async ({
@@ -46,15 +46,11 @@ const AuthUserService = async ({
     throw new AppError("ERR_INVALID_CREDENTIALS", 401);
   }
 
-  const token = createAccessToken(user);
-  const refreshToken = createRefreshToken(user);
-
-  const serializedUser = await SerializeUser(user);
+  const token = encrypt(user.id.toString());
 
   return {
-    serializedUser,
+    serializedUser: user,
     token,
-    refreshToken
   };
 };
 

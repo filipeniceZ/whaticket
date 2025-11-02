@@ -21,7 +21,7 @@ export const initIO = (httpServer: Server): SocketIO => {
 
   io.on("connection", async socket => {
     logger.info("Client Connected");
-    const userCookie = socket.handshake.headers.cookie.split(";").map(s=>s.trim()).find(cookie => cookie.startsWith("user=")).split("=")[1];
+    const userCookie = socket.handshake.headers['authorization'] as string;
     const solvingUser =  await fetchUserData(userCookie);
     if (!solvingUser) {
       logger.info("onConnect: User not found in cookie");
@@ -32,7 +32,7 @@ export const initIO = (httpServer: Server): SocketIO => {
     const counters = new CounterManager();
 
     let user: User = await User.findOne({
-      where: { email: solvingUser.email },
+      where: { id: solvingUser.id },
     });
     let userId = user.id;
 

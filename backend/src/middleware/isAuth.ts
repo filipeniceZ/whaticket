@@ -4,6 +4,7 @@ import { logger } from "../utils/logger";
 import AppError from "../errors/AppError";
 import authConfig from "../config/auth";
 import User from "../models/User";
+import { decrypt } from "../authCrypt";
 
 const cache: Map<string, {
   user: any,
@@ -18,25 +19,27 @@ export async function fetchUserData(userId: string) {
     }
   }
 
-  const response = await fetch(process.env.CHECK_AUTH_ENDPOINT, {
-    headers: {
-      'Cookie': `user=${userId}`,
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3 TKCHAT'
+  try {
+    const plainId = Number(await decrypt(userId));
+    if (isNaN(plainId)) {
+      return null;
     }
-  });
 
-  if (!response.ok) {
-   return null;
+    const user = {
+      id: plainId
+    };
+
+    cache.set(userId, { user, timestamp: Date.now() });
+
+    return user;
   }
-
-  const userData = await response.json();
-  cache.set(userId, { user: userData, timestamp: Date.now() });
-  
-  return userData;
+  catch {
+    return null;
+  }
 }
 
 const isAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const solvingUserId = req.cookies['user'];
+  const solvingUserId = req.headers['authorization'] as string;
   if (!solvingUserId) {
     throw new AppError("ERR_SESSION_EXPIRED", 401);
   }
@@ -54,7 +57,7 @@ const isAuth = async (req: Request, res: Response, next: NextFunction): Promise<
 
   const systemUser = await User.findOne({
     where: {
-      email: userData.email,
+      id: userData.id,
     }
   });
 

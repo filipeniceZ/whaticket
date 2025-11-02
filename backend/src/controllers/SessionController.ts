@@ -10,12 +10,10 @@ import ShowUserService from "../services/UserServices/ShowUserService";
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const { email, password } = req.body;
 
-  const { token, serializedUser, refreshToken } = await AuthUserService({
+  const { token, serializedUser } = await AuthUserService({
     email,
     password
   });
-
-  SendRefreshToken(res, refreshToken);
 
   const io = getIO();
   io.to(`user-${serializedUser.id}`).emit(`company-${serializedUser.companyId}-auth`, {
