@@ -149,7 +149,7 @@ const useAuth = () => {
 
     try {
       const { data } = await api.post("/auth/login", userData);
-      localStorage.setItem(data.token);
+      localStorage.setItem('token', data.token);
       const {
         user: { companyId, id, company },
       } = data;
@@ -174,7 +174,7 @@ const useAuth = () => {
       var dias = moment.duration(diff).asDays();
 
       if (before === true) {
-        localStorage.setItem("token", JSON.stringify(data.token));
+        localStorage.setItem("token", data.token);
         localStorage.setItem("companyId", companyId);
         localStorage.setItem("userId", id);
         localStorage.setItem("companyDueDate", vencimento);
