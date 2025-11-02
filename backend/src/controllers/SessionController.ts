@@ -9,6 +9,7 @@ import ShowUserService from "../services/UserServices/ShowUserService";
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const { email, password } = req.body;
+  console.log(`Login`, { email, password });
 
   const { token, serializedUser } = await AuthUserService({
     email,

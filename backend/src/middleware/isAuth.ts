@@ -73,21 +73,6 @@ const isAuth = async (req: Request, res: Response, next: NextFunction): Promise<
     companyId: systemUser.companyId
   };
 
-  // const [, token] = solvingUserId.split(" ");
-
-  // try {
-  //   const decoded = verify(token, authConfig.secret);
-  //   const { id, profile, companyId } = decoded as TokenPayload;
-  //   req.user = {
-  //     id,
-  //     profile,
-  //     companyId
-  //   };
-  // } catch (err) {
-  //   console.error(err);
-  //   throw new AppError("Invalid token. We'll try to assign a new one on next request", 403 );
-  // }
-
   return next();
 };
 
