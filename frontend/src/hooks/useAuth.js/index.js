@@ -54,19 +54,18 @@ const useAuth = () => {
 
   }, []);
 
-  // api.interceptors.request.use(
-  //   (config) => {
-  //     const token = localStorage.getItem("token");
-  //     if (token) {
-  //       config.headers["Authorization"] = `Bearer ${JSON.parse(token)}`;
-  //       setIsAuth(true);
-  //     }
-  //     return config;
-  //   },
-  //   (error) => {
-  //     Promise.reject(error);
-  //   }
-  // );
+  api.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        config.headers["Authorization"] = token;
+      }
+      return config;
+    },
+    (error) => {
+      Promise.reject(error);
+    }
+  );
 
   // api.interceptors.response.use(
   //   (response) => {
@@ -150,6 +149,7 @@ const useAuth = () => {
 
     try {
       const { data } = await api.post("/auth/login", userData);
+      localStorage.setItem(data.token);
       const {
         user: { companyId, id, company },
       } = data;
@@ -178,7 +178,7 @@ const useAuth = () => {
         localStorage.setItem("companyId", companyId);
         localStorage.setItem("userId", id);
         localStorage.setItem("companyDueDate", vencimento);
-        api.defaults.headers.Authorization = `Bearer ${data.token}`;
+        api.defaults.headers.Authorization = `${data.token}`;
         setUser(data.user);
         setIsAuth(true);
         toast.success(i18n.t("auth.toasts.success"));
@@ -222,7 +222,7 @@ Entre em contato com o Suporte para mais informações! `);
       localStorage.removeItem("cshow");
       api.defaults.headers.Authorization = undefined;
       setLoading(false);
-      window.location.href = `https://solving.com.br/login?redirect=${encodeURIComponent(window.location.href)}`;
+      // window.location.href = `https://solving.com.br/login?redirect=${encodeURIComponent(window.location.href)}`;
     } catch (err) {
       toastError(err);
       setLoading(false);

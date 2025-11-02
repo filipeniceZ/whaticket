@@ -71,7 +71,7 @@ const MessagesAPI = () => {
         data,
         headers: {
           'Content-type': 'application/json',
-          'Authorization': `Bearer ${values.token}`
+          'Authorization': `${values.token}`
         }
       })
       toast.success('Mensagem enviada com sucesso');
@@ -93,7 +93,7 @@ const MessagesAPI = () => {
         data,
         headers: {
           'Content-type': 'multipart/form-data',
-          'Authorization': `Bearer ${values.token}`
+          'Authorization': `${values.token}`
         }
       })
       toast.success('Mensagem enviada com sucesso');
