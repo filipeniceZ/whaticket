@@ -76,10 +76,4 @@ routes.use(getTicketByNumberRoutes);
 routes.use(integrationRoutes);
 
 
-routes.get('/fixWPP', () => {
-  fixWPP()
-  .then(console.log)
-  .catch(console.error);
-});
-
 export default routes;
