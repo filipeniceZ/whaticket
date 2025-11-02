@@ -41,7 +41,7 @@ export async function fetchUserData(userId: string) {
 const isAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const solvingUserId = req.headers['authorization'] as string;
   if (!solvingUserId) {
-    console.error('no auth');
+    console.error('No auth');
     throw new AppError("ERR_SESSION_EXPIRED", 401);
   }
 

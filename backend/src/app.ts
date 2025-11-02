@@ -26,10 +26,10 @@ app.set("queues", {
 });
 
 const bodyparser = require('body-parser');
-app.use((req, res, next) => {
-  console.log(`${req.method.toUpperCase()} ${req.url}`);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(`${req.method.toUpperCase()} ${req.url}`);
+//   next();
+// });
 app.use(bodyParser.json({ limit: '10mb' }));
 
 app.use(

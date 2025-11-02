@@ -44,7 +44,7 @@ const AuthUserService = async ({
   }
 
   if (!(await user.checkPassword(password))) {
-    console.error('invalid password', { email });
+    console.error('invalid password');
     throw new AppError("ERR_INVALID_CREDENTIALS", 401);
   }
 
