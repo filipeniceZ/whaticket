@@ -103,7 +103,7 @@ const SocketManager = {
 		    this.currentUserId = null;
       }
 
-      // let token = JSON.parse(localStorage.getItem("token"));
+      let token = (localStorage.getItem("token"));
       // if (!token) {
       //   return new DummySocket();
       // }
@@ -123,7 +123,7 @@ const SocketManager = {
         transports: ["websocket"],
         pingTimeout: 18000,
         pingInterval: 18000,
-        // query: { token },
+        query: { token },
       });
 
       // this.currentSocket.io.on("reconnect_attempt", () => {
