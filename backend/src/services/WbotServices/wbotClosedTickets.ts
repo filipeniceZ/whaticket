@@ -18,7 +18,6 @@ export const ClosedAllOpenTickets = async (companyId: number): Promise<void> => 
       await ticket.update({
         status: "closed",
         //userId: ticket.userId || null,
-        lastMessage: body,
         unreadMessages: 0,
         amountUseBotQueues: 0
       });
@@ -28,7 +27,6 @@ export const ClosedAllOpenTickets = async (companyId: number): Promise<void> => 
       await ticket.update({
         status: "closed",
         //  userId: ticket.userId || null,
-        lastMessage: body,
         unreadMessages: 0,
         amountUseBotQueues: 0
       });
@@ -53,7 +51,9 @@ export const ClosedAllOpenTickets = async (companyId: number): Promise<void> => 
 
     tickets.forEach(async ticket => {
       const showTicket = await ShowTicketService(ticket.id, companyId);
-      const whatsapp = await Whatsapp.findByPk(showTicket?.whatsappId);
+      const whatsapp = await Whatsapp.findByPk(showTicket?.whatsappId, {
+        attributes: { exclude: ["session"] }
+      });
       const ticketTraking = await TicketTraking.findOne({
         where: {
           ticketId: ticket.id,

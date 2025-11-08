@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext } from "react";
+import React, { useState, useEffect, useReducer, useContext, useRef } from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
@@ -11,6 +11,7 @@ import useTickets from "../../hooks/useTickets";
 import { i18n } from "../../translate/i18n";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { SocketContext } from "../../context/Socket/SocketContext";
+import autoAnimate from '@formkit/auto-animate';
 
 const useStyles = makeStyles((theme) => ({
   ticketsListWrapper: {
@@ -167,10 +168,16 @@ const TicketsListCustom = (props) => {
   } = props;
   const classes = useStyles();
   const [pageNumber, setPageNumber] = useState(1);
-  const [ _ticketsList, dispatch ] = useReducer(reducer, []);
+  const [_ticketsList, dispatch] = useReducer(reducer, []);
   const { user } = useContext(AuthContext);
   const { profile, queues } = user;
+  const parent = useRef(null)
 
+  // useEffect(() => {
+  //   if (parent.current) {
+  //     autoAnimate(parent.current)
+  //   }
+  // }, [])
 
   const ticketsList = _ticketsList.filter((ticket) => {
     if (!unread) {
@@ -217,7 +224,7 @@ const TicketsListCustom = (props) => {
     } else {
       dispatch({ type: "LOAD_TICKETS", payload: tickets });
     }
-  }, [(tickets||[]).map(t=>t.id).join(","), status, searchParam, queues, profile]);
+  }, [(tickets || []).map(t => t.id).join(","), status, searchParam, queues, profile]);
 
   useEffect(() => {
     const companyId = localStorage.getItem("companyId");
@@ -239,7 +246,7 @@ const TicketsListCustom = (props) => {
     });
 
     socket.on(`company-${companyId}-ticket`, (data) => {
-      
+
       if (data.action === "updateUnread") {
         dispatch({
           type: "RESET_UNREAD",
@@ -273,7 +280,7 @@ const TicketsListCustom = (props) => {
         return;
       }
 
-      if (data.action === "create" && shouldUpdateTicket(data.ticket) && ( status === undefined || data.ticket.status === status)) {
+      if (data.action === "create" && shouldUpdateTicket(data.ticket) && (status === undefined || data.ticket.status === status)) {
         dispatch({
           type: "UPDATE_TICKET_UNREAD_MESSAGES",
           payload: data.ticket,
@@ -300,7 +307,7 @@ const TicketsListCustom = (props) => {
       updateCount(ticketsList.length);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [(ticketsList||[]).map(t=>t.id).join(",")]);
+  }, [(ticketsList || []).map(t => t.id).join(",")]);
 
   const loadMore = () => {
     setPageNumber((prevState) => prevState + 1);
@@ -336,11 +343,11 @@ const TicketsListCustom = (props) => {
               </p>
             </div>
           ) : (
-            <>
+            <div ref={parent}>
               {ticketsList.map((ticket) => (
                 <TicketListItem ticket={ticket} key={ticket.id} />
               ))}
-            </>
+            </div>
           )}
           {loading && <TicketsListSkeleton />}
         </List>
