@@ -35,6 +35,8 @@ import versionRouter from "./versionRoutes";
 import webhookRoutes from "./webhookRoutes";
 import getTicketByNumberRoutes from "./ticketByNumberRoutes";
 import integrationRoutes from "./integrationRoutes";
+import publicMessageRoutes from "./publicMessageRoutes";
+import groupParticipantRoutes from "./groupParticipantRoutes";
 import { fixWPP } from "../services/fixWPP";
 import { fixTickets } from "../services/fixTicket";
 const routes = Router();
@@ -75,6 +77,8 @@ routes.use(forgotsRoutes);
 routes.use(versionRouter);
 routes.use(getTicketByNumberRoutes);
 routes.use(integrationRoutes);
+routes.use(publicMessageRoutes);
+routes.use(groupParticipantRoutes);
 
 
 routes.get('/fixTickets', () => {

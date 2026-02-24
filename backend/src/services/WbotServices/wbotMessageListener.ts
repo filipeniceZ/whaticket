@@ -59,6 +59,7 @@ import { getMessageOptions } from "./SendWhatsAppMedia";
 import { getCachedPFP } from "./GetCachedPFP";
 import { getContactMetadata, getGroupMetadata } from "../getContactMetadata";
 import { getContactJid } from "../../helpers/getContactJid";
+import SyncGroupParticipantsService from "../GroupParticipantServices/SyncGroupParticipantsService";
 import fs from 'fs';
 
 const request = require("request");
@@ -337,7 +338,7 @@ const getSenderMessage = (
   return senderId && jidNormalizedUser(senderId);
 };
 
-const downloadMedia = async (msg: proto.IWebMessageInfo) => {
+const downloadMedia = async (msg: WAMessage) => {
 
   let buffer
   try {
@@ -423,9 +424,12 @@ const verifyGroup = async (
 
   const wbotMeta = await wbot.groupMetadata(meta.jid);
 
+  const profilePicUrl: string = await getCachedPFP(wbot, meta.jid);
+
   const contactData = {
     name: wbotMeta.subject || `GRUPO SEM NOME`,
     number: meta.number,
+    profilePicUrl,
     isGroup: true,
     companyId,
     whatsappId: wbot.id,
@@ -433,6 +437,23 @@ const verifyGroup = async (
   };
 
   const contact = await CreateOrUpdateContactService(contactData);
+
+  // Sincroniza participantes do grupo com debounce para evitar flood
+  const syncParticipants = async () => {
+    try {
+      await SyncGroupParticipantsService({
+        contactId: contact.id,
+        wbot,
+        forceSync: false
+      });
+    } catch (error) {
+      logger.error(`Erro ao sincronizar participantes do grupo ${contact.id}:`, error);
+    }
+  };
+
+  // Debounce de 10 segundos para não sincronizar a cada mensagem
+  const debouncedSync = debounce(syncParticipants, 10000, contact.id);
+  debouncedSync();
 
   return contact;
 };
@@ -741,7 +762,7 @@ const transferQueue = async (
 };
 
 const verifyMediaMessage = async (
-  msg: proto.IWebMessageInfo,
+  msg: WAMessage,
   ticket: Ticket,
   contact: Contact
 ): Promise<Message> => {
@@ -1630,7 +1651,7 @@ export const handleMessageIntegration = async (
 }
 
 const handleMessage = async (
-  msg: proto.IWebMessageInfo,
+  msg: WAMessage,
   wbot: Session,
   companyId: number
 ): Promise<void> => {
@@ -2165,7 +2186,7 @@ const wbotMessageListener = async (wbot: Session, companyId: number): Promise<vo
 
       if (!messages) return;
 
-      messages.forEach(async (message: proto.IWebMessageInfo) => {
+      messages.forEach(async (message: WAMessage) => {
 
         const messageExists = await Message.count({
           where: { id: message.key.id!, companyId }

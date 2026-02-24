@@ -10,11 +10,12 @@ import { map_msg } from "../../utils/global";
 import UpdateTicketService from "../TicketServices/UpdateTicketService";
 import { getIO } from "../../libs/socket";
 import { getContactJid } from "../../helpers/getContactJid";
+import { QUEUES } from "../../utils/queueConsts";
 
 interface Request {
   body: string;
   ticket: Ticket;
-  userId: number;
+  userId: number | null;
   quotedMsg?: Message;
   editMsg?: Message;
 }
@@ -45,8 +46,14 @@ const SendWhatsAppMessage = async ({
     ticket = res.ticket;
     changed = true;
   }
-  if (ticket.useIntegration) {
-    const res = await ticket.update({ useIntegration: false });
+  if (ticket.useIntegration || ticket.queueId === QUEUES.BUSCAR_BOLETO) {
+    const res = await ticket.update({
+      useIntegration: false,
+      typebotSessionId: null,
+      integrationId: null,
+      typebotStatus: false,
+      queueId: QUEUES.FALAR_COM_ATENDENTE
+    });
     ticket = res;
     changed = true;
   }
